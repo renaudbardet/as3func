@@ -1,5 +1,6 @@
 package as3func.lang
 {
+	import flash.utils.getQualifiedClassName;
 
 	public class MailBox
 	{
@@ -24,8 +25,8 @@ package as3func.lang
 		{
 			
 			if ( data != null && typeConstraint != null && !(data is typeConstraint) )
-				// throw "Bad input, this mailbox is can only accomodate events of type "+typeconstraint;
-				return;
+				throw "Bad input, this mailbox is can only accomodate events of type " + getQualifiedClassName(typeConstraint);
+			
 			stack.push( data );
 			_mailAvailable.dispatch(stack.length);
 			

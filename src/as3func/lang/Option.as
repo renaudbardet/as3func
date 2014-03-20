@@ -16,7 +16,7 @@ package as3func.lang
 		public function get value() : *
 		{
 			if (_isNone)
-				// throw "getValue on None option" ;
+				// throw "getValue on None option";
 				return null;
 			
 			return _data;

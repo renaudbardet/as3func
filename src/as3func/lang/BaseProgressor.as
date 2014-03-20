@@ -53,7 +53,7 @@ package as3func.lang
 		{
 			
 			/* if ( progress < progress_ || progress > 1 )
-				throw new ArgumentError("progress should be a Number between .0 and 1.0 and greater than the current progress") ;
+				throw new ArgumentError("progress should be a Number between .0 and 1.0 and greater than the current progress");
 			*/
 			if( isComplete ) return;
 			if( progress < progress_ ) progress = progress_;

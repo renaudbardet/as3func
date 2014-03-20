@@ -15,45 +15,45 @@ package as3func.lang
 	public class Either
 	{
 		
-		private var _isRight:Boolean ;
+		private var _isRight:Boolean;
 		
-		private var _data:* ;
+		private var _data:*;
 		
 		// Do not use this constructor, althought it results in the same, use Either.Right or Either.Left wich are clearer for the reader
 		public function Either( data : *, isRight:Boolean=true )
 		{
 			
-			_data = data ;
-			_isRight = isRight ;
+			_data = data;
+			_isRight = isRight;
 			
 		}
 		
 		public function isLeft() : Boolean
 		{
-			return !_isRight ;
+			return !_isRight;
 		}
 		
 		public function isRight() : Boolean
 		{
-			return _isRight ;
+			return _isRight;
 		}
 		
 		public function getRight() : *
 		{
 			if (!_isRight)
-				// throw "getRight on Left object" ;
-				return null ;
+				// throw "getRight on Left object";
+				return null;
 			
-			return _data ;
+			return _data;
 		}
 		
 		public function getLeft() : *
 		{
 			if (_isRight)
-				// throw "getLeft on Right object" ;
-				return null ;
+				// throw "getLeft on Right object";
+				return null;
 			
-			return _data ;
+			return _data;
 		}
 		
 		public function toString():String {
@@ -68,12 +68,12 @@ package as3func.lang
 		
 		public static function Right( data : * ) : Either
 		{
-			return new Either( data, true ) ;
+			return new Either( data, true );
 		}
 		
 		public static function Left( data : * ) : Either
 		{
-			return new Either( data, false ) ;
+			return new Either( data, false );
 		}
 		
 	}

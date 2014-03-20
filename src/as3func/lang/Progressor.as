@@ -13,7 +13,7 @@ package as3func.lang
 		public function complete( res:* = null ):void
 		{
 			
-			this._completeEither( Either.Right( res ) ) ;
+			this._completeEither( Either.Right( res ) );
 			
 		}
 		
@@ -24,7 +24,7 @@ package as3func.lang
 		public function fail( error:* = null ):void
 		{
 			
-			this._completeEither( Either.Left( error ) ) ;
+			this._completeEither( Either.Left( error ) );
 			
 		}
 		
@@ -35,41 +35,41 @@ package as3func.lang
 		public function completeEither( res:Either ):void
 		{
 			
-			this._completeEither( res ) ;
+			this._completeEither( res );
 			
 		}
 		
 		public function updateProgress( p:Number ):void
 		{
-			_updateProgress(p) ;
+			_updateProgress(p);
 		}
 		
 		public function resume():void
 		{
-			_resume() ;
+			_resume();
 		}
 		
 		public function pause():void
 		{
-			_pause() ;
+			_pause();
 		}
 		
 		public static function fromFuture(f:Future):Progressor
 		{
 			
-			var tf:Progressor = new Progressor() ;
-			tf._bind( f ) ;
-			return tf ;
+			var tf:Progressor = new Progressor();
+			tf._bind( f );
+			return tf;
 			
 		}
 		
 		public static function fromProgressor(f:IProgressor):Progressor
 		{
 			
-			var tf:Progressor = new Progressor() ;
-			tf._bind( f ) ;
-			f.onProgress.add( tf._updateProgress ) ;
-			return tf ;
+			var tf:Progressor = new Progressor();
+			tf._bind( f );
+			f.onProgress.add( tf._updateProgress );
+			return tf;
 			
 		}
 		

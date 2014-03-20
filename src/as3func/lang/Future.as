@@ -13,7 +13,7 @@ package as3func.lang
 		public function complete( res:* = null ):void
 		{
 			
-			this._completeEither( Either.Right( res ) ) ;
+			this._completeEither( Either.Right( res ) );
 			
 		}
 		
@@ -24,7 +24,7 @@ package as3func.lang
 		public function fail( error:* = null ):void
 		{
 			
-			this._completeEither( Either.Left( error ) ) ;
+			this._completeEither( Either.Left( error ) );
 			
 		}
 		
@@ -35,7 +35,7 @@ package as3func.lang
 		public function completeEither( res:Either ):void
 		{
 			
-			this._completeEither( res ) ;
+			this._completeEither( res );
 			
 		}
 		
@@ -50,7 +50,7 @@ package as3func.lang
 		public function bind( f2:IFuture ) : IFuture
 		{
 			
-			return _bind( f2 ) ;
+			return _bind( f2 );
 			
 		}
 		
@@ -65,9 +65,9 @@ package as3func.lang
 		public function sync( f2:Future ):IFuture
 		{
 			
-			f2.onResult( this._completeEither ) ;
-			this.onResult( f2._completeEither ) ;
-			return this ;
+			f2.onResult( this._completeEither );
+			this.onResult( f2._completeEither );
+			return this;
 			
 		}
 		
@@ -84,8 +84,8 @@ package as3func.lang
 		public function mutex( f2:Future ):void
 		{
 			
-			this.onSuccess( f2.fail ) ;
-			f2.onSuccess( this.fail ) ;
+			this.onSuccess( f2.fail );
+			f2.onSuccess( this.fail );
 			
 		}
 		
@@ -98,9 +98,9 @@ package as3func.lang
 		public static function fromFuture(f:IFuture):Future
 		{
 			
-			var tf:Future = new Future() ;
-			tf.bind( f ) ;
-			return tf ;
+			var tf:Future = new Future();
+			tf.bind( f );
+			return tf;
 			
 		}
 		
@@ -117,18 +117,18 @@ package as3func.lang
 		public static function nextEvent( dispatcher:EventDispatcher, type:String, useCapture:Boolean = false, priority:int = 0 ) : IFuture
 		{
 			
-			var f:Future = new Future() ;
+			var f:Future = new Future();
 			
 			function onEvent(e:Event):void
 			{
-				f._complete( e ) ;
+				f._complete( e );
 			}
 			
 			f.onResult( callback( dispatcher.removeEventListener, type, onEvent ) );
 			
-			dispatcher.addEventListener( type, onEvent, useCapture, priority, false ) ;
+			dispatcher.addEventListener( type, onEvent, useCapture, priority, false );
 			
-			return f ;
+			return f;
 			
 		}
 		
@@ -140,9 +140,9 @@ package as3func.lang
 		 */		
 		public static function nextSignal( s:Signal ) : Future
 		{
-			var f:Future = new Future() ;
-			s.add( f._complete, true ) ;
-			return f ;
+			var f:Future = new Future();
+			s.add( f._complete, true );
+			return f;
 		}
 		
 		/** 
@@ -151,7 +151,7 @@ package as3func.lang
 		public static function completed( data : * = null ):Future
 		{
 			
-			return completedEither( Either.Right( data ) ) ;
+			return completedEither( Either.Right( data ) );
 			
 		}
 		
@@ -161,7 +161,7 @@ package as3func.lang
 		public static function failed( error : * = null ):Future
 		{
 			
-			return completedEither( Either.Left( error ) ) ;
+			return completedEither( Either.Left( error ) );
 			
 		}
 		
@@ -171,9 +171,9 @@ package as3func.lang
 		public static function completedEither( res:Either ):Future
 		{
 			
-			var f:Future = new Future() ;
-			f._completeEither( res ) ;
-			return f ;
+			var f:Future = new Future();
+			f._completeEither( res );
+			return f;
 			
 		}
 		

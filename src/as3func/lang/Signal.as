@@ -1,6 +1,7 @@
 package as3func.lang
 {
 	import flash.utils.Dictionary;
+	import flash.utils.getQualifiedClassName;
 
 	public class Signal implements ISignal
 	{
@@ -25,7 +26,7 @@ package as3func.lang
 		{
 			
 			if(cb.length > 1)
-				return;// throw "cannot add a function that expects more than 1 parameter";
+				throw "cannot add a function that expects more than 1 parameter";
 			
 			callbacks[cb] = once;
 			
@@ -60,9 +61,8 @@ package as3func.lang
 		{
 			
 			if( data != null && typeConstraint != null && !(data is typeConstraint))
-				return;
-				// throw "signal dispatch error: the type of data to be dispatched by this signal has been constrained to "
-				// + getQualifiedClassName(typeConstraint) + " but data provided is of type " + getQualifiedClassName(data);
+				throw "signal dispatch error: the type of data to be dispatched by this signal has been constrained to "
+				 + getQualifiedClassName(typeConstraint) + " but data provided is of type " + getQualifiedClassName(data);
 			
 			for (var cb:Function in callbacks)
 			{

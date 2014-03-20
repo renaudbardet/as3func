@@ -10,7 +10,7 @@ package as3func.lang {
 	public function identity( _ret : * ) : Function
 	{
 		
-		return function() : * { return _ret ; } ;
+		return function() : * { return _ret; };
 		
 	}
 }

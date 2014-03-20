@@ -10,7 +10,7 @@ package as3func.lang{
 	public function eventListener( _f:Function ) : Function
 	{
 		
-		return function( e:Event ):void { _f() ; }
+		return function( e:Event ):void { _f(); }
 		
 	}
 }

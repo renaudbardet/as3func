@@ -15,26 +15,26 @@ package as3func.lang
 	public class BaseFuture implements IFuture
 	{
 		
-		protected var _isComplete : Boolean ;
+		protected var _isComplete : Boolean;
 		
-		protected var result : Either ;
+		protected var result : Either;
 		
-		private var callbacks:Vector.<Function> ;
-		private var errorCallbacks:Vector.<Function> ;
-		private var resultCallbacks:Vector.<Function> ;
+		private var callbacks:Vector.<Function>;
+		private var errorCallbacks:Vector.<Function>;
+		private var resultCallbacks:Vector.<Function>;
 		
-		private var typeConstraint:Class ;
+		private var typeConstraint:Class;
 		
 		public function BaseFuture( typeConstraint:Class = null )
 		{
 			
-			_isComplete = false ;
+			_isComplete = false;
 			
-			callbacks = new Vector.<Function>() ;
-			errorCallbacks = new Vector.<Function>() ;
-			resultCallbacks = new Vector.<Function>() ;
+			callbacks = new Vector.<Function>();
+			errorCallbacks = new Vector.<Function>();
+			resultCallbacks = new Vector.<Function>();
 			
-			this.typeConstraint = typeConstraint ;
+			this.typeConstraint = typeConstraint;
 			
 		}
 		
@@ -60,18 +60,18 @@ package as3func.lang
 				if ( result.isRight() )
 				{
 					if ( f.length == 0 )
-						f() ;
+						f();
 					else
-						f(result.getRight()) ;
+						f(result.getRight());
 				}
 				
 			}
 			else
 			{
-				callbacks.push( f ) ;
+				callbacks.push( f );
 			}
 			
-			return this ;
+			return this;
 			
 		}
 		
@@ -89,18 +89,18 @@ package as3func.lang
 				if ( result.isLeft() )
 				{
 					if ( f.length == 0 )
-						f() ;
+						f();
 					else
-						f(result.getLeft()) ;
+						f(result.getLeft());
 				}
 				
 			}
 			else
 			{
-				errorCallbacks.push( f ) ;
+				errorCallbacks.push( f );
 			}
 			
-			return this ;
+			return this;
 			
 		}
 		
@@ -116,17 +116,17 @@ package as3func.lang
 			{
 				
 				if ( f.length == 0 )
-					f() ;
+					f();
 				else
-					f(result) ;
+					f(result);
 				
 			}
 			else
 			{
-				resultCallbacks.push( f ) ;
+				resultCallbacks.push( f );
 			}
 			
-			return this ;
+			return this;
 			
 		}
 		
@@ -137,7 +137,7 @@ package as3func.lang
 		protected function _complete( res:* ):void
 		{
 			
-			_completeEither( Either.Right( res ) ) ;
+			_completeEither( Either.Right( res ) );
 			
 		}
 		
@@ -148,7 +148,7 @@ package as3func.lang
 		protected function _fail( error:* ):void
 		{
 			
-			_completeEither( Either.Left( error ) ) ;
+			_completeEither( Either.Left( error ) );
 			
 		}
 		
@@ -159,9 +159,9 @@ package as3func.lang
 		protected function _completeEither( res:Either ):void
 		{
 			
-			if ( _isComplete ) return ;
+			if ( _isComplete ) return;
 			
-			result = res ;
+			result = res;
 			
 			if ( typeConstraint != null && result.isRight() )
 			{
@@ -169,10 +169,10 @@ package as3func.lang
 					result = Either.Left("Type constraint failed on Future completion, result should be of type "
 						+ flash.utils.getQualifiedClassName(typeConstraint)
 						+ " but is "
-						+ flash.utils.getQualifiedClassName(result.getRight()) ) ;
+						+ flash.utils.getQualifiedClassName(result.getRight()) );
 			}
 			
-			_isComplete = true ;
+			_isComplete = true;
 			
 			if ( res.isRight() )
 			{
@@ -180,9 +180,9 @@ package as3func.lang
 				{
 					
 					if ( fct.length == 0 )
-						fct() ;
+						fct();
 					else
-						fct(res.getRight()) ;
+						fct(res.getRight());
 					
 				}
 			}
@@ -192,9 +192,9 @@ package as3func.lang
 				{
 					
 					if ( fct.length == 0 )
-						fct() ;
+						fct();
 					else
-						fct(res.getLeft()) ;
+						fct(res.getLeft());
 					
 				}
 			}
@@ -203,15 +203,15 @@ package as3func.lang
 			{
 				
 				if ( fct.length == 0 )
-					fct() ;
+					fct();
 				else
-					fct(result) ;
+					fct(result);
 				
 			}
 			
-			callbacks = null ;
-			errorCallbacks = null ;
-			resultCallbacks = null ;
+			callbacks = null;
+			errorCallbacks = null;
+			resultCallbacks = null;
 			
 		}
 		
@@ -235,13 +235,13 @@ package as3func.lang
 					if ( res.isRight() )
 					{
 						if ( mapper.length > 0 )
-							return Either.Right( mapper( res.getRight() ) ) ;
+							return Either.Right( mapper( res.getRight() ) );
 						else
-							return Either.Right( mapper() ) ;
+							return Either.Right( mapper() );
 					}
 					else
-						return res ;
-				} ) ;
+						return res;
+				} );
 			
 		}
 		
@@ -258,16 +258,16 @@ package as3func.lang
 					{
 						try{
 							if ( mapper.length > 0 )
-								return Either.Right( mapper( res.getRight() ) ) ;
+								return Either.Right( mapper( res.getRight() ) );
 							else
-								return Either.Right( mapper() ) ;
+								return Either.Right( mapper() );
 						} catch(e:*) {
 							return Either.Left(e);
 						}
 					}
 					else
-						return res ;
-				} ) ;
+						return res;
+				} );
 			
 		}
 		
@@ -283,16 +283,16 @@ package as3func.lang
 		public function mapResult( mapper:Function ) : IFuture
 		{
 			
-			var proxy:BaseFuture = new BaseFuture() ;
+			var proxy:BaseFuture = new BaseFuture();
 			this.onResult(
 				function mapResultCompleter( res:Either ):void
 				{
 					if ( mapper.length > 0 )
-						proxy._completeEither( mapper( res ) ) ;
+						proxy._completeEither( mapper( res ) );
 					else
-						proxy._completeEither( mapper() ) ;
-				} ) ;
-			return proxy ;
+						proxy._completeEither( mapper() );
+				} );
+			return proxy;
 			
 		}
 		
@@ -309,21 +309,21 @@ package as3func.lang
 		public function refine( mapper:Function ) : IFuture
 		{
 			
-			var proxy:BaseFuture = new BaseFuture() ;
+			var proxy:BaseFuture = new BaseFuture();
 			this.onResult(
 				function refineCompleter( res:Either ):void
 				{
 					if ( mapper.length > 0 )
 					{
 						if ( res.isRight() )
-							proxy._completeEither( mapper( res.getRight() ) ) ;
+							proxy._completeEither( mapper( res.getRight() ) );
 						else
-							proxy._completeEither( res ) ;
+							proxy._completeEither( res );
 					}
 					else
-						proxy._completeEither( mapper() ) ;
-				} ) ;
-			return proxy ;
+						proxy._completeEither( mapper() );
+				} );
+			return proxy;
 			
 		}
 		
@@ -341,22 +341,22 @@ package as3func.lang
 		public function join( f2 : IFuture ) : IFuture
 		{
 			
-			var proxy:BaseFuture = new BaseFuture() ;
+			var proxy:BaseFuture = new BaseFuture();
 			
 			var data:Array = [];
 			
 			function joinCheck( i:int, d:* ):void {
 				data[i]= d;
 				if ( _isComplete && f2.isComplete )
-					proxy._complete( data ) ;
+					proxy._complete( data );
 			}
 			
-			onSuccess( callback(joinCheck, 0) ) ;
-			onError( proxy._fail ) ;
-			f2.onSuccess( callback(joinCheck, 1) ) ;
-			f2.onError( proxy._fail ) ;
+			onSuccess( callback(joinCheck, 0) );
+			onError( proxy._fail );
+			f2.onSuccess( callback(joinCheck, 1) );
+			f2.onError( proxy._fail );
 			
-			return proxy ;
+			return proxy;
 			
 		}
 		
@@ -371,24 +371,24 @@ package as3func.lang
 		public function or( f2:IFuture ):IFuture
 		{
 			
-			var proxy:BaseFuture = new BaseFuture() ;
+			var proxy:BaseFuture = new BaseFuture();
 			
 			var result1:Either = null;
 			var result2:Either = null;
 			
 			this.onResult( function orCompleter1(e:Either):void {
 				result1 = e;
-				if ( e.isRight() ) proxy._complete( e.getRight() ) ;
+				if ( e.isRight() ) proxy._complete( e.getRight() );
 				else if ( result2 && result2.isLeft() )
-					proxy._fail( [result1.getLeft(), result2.getLeft()] ) ; // tuple of errors
-			} ) ;
+					proxy._fail( [result1.getLeft(), result2.getLeft()] ); // tuple of errors
+			} );
 			f2.onResult( function orCompleter2(e:Either):void {
 				result2 = e;
 				if ( e.isRight() ) proxy._complete( e.getRight() );
 				else if ( result1 && result1.isLeft() )
-					proxy._fail( [result1.getLeft(), result2.getLeft()] ) ;
-			} ) ;
-			return proxy ;
+					proxy._fail( [result1.getLeft(), result2.getLeft()] );
+			} );
+			return proxy;
 			
 		}
 		
@@ -417,8 +417,8 @@ package as3func.lang
 			
 			var proxy:BaseFuture = new BaseFuture();
 			proxy._bind(this);
-			f2.onSuccess( proxy._fail ) ;
-			return proxy ;
+			f2.onSuccess( proxy._fail );
+			return proxy;
 			
 		}
 		
@@ -433,8 +433,8 @@ package as3func.lang
 		protected function _bind( f2:IFuture ) : IFuture
 		{
 			
-			f2.onResult( this._completeEither ) ;
-			return this ;
+			f2.onResult( this._completeEither );
+			return this;
 			
 		}
 		
@@ -446,9 +446,9 @@ package as3func.lang
 		public function copy() : IFuture
 		{
 			
-			var f:BaseFuture = new BaseFuture() ;
-			f._bind( this ) ;
-			return f ;
+			var f:BaseFuture = new BaseFuture();
+			f._bind( this );
+			return f;
 			
 		}
 		
@@ -477,13 +477,13 @@ package as3func.lang
 						if ( res.isRight() )
 						{
 							if ( func.length > 0 )
-								return func( res.getRight() ) ;
+								return func( res.getRight() );
 							else
-								return func() ;
+								return func();
 						}
 						else
-							return Future.failed( res.getLeft() ) ;
-					} ) ;
+							return Future.failed( res.getLeft() );
+					} );
 			
 		}
 		
@@ -496,24 +496,24 @@ package as3func.lang
 		public function chainResult( func:Function ):IFuture
 		{
 			
-			var proxy:BaseFuture = new BaseFuture() ;
+			var proxy:BaseFuture = new BaseFuture();
 			
 			function chainFunc( res:Either ):void
 			{
 				if ( func.length > 0 )
-					func( res ).onResult( proxy._completeEither ) ;
+					func( res ).onResult( proxy._completeEither );
 				else
-					func().onResult( proxy._completeEither ) ;
+					func().onResult( proxy._completeEither );
 			}
 			
-			onResult( chainFunc ) ;
+			onResult( chainFunc );
 			
-			return proxy ;
+			return proxy;
 			
 		}
 		
 		public function traceResult(flag:String):IFuture {
-			this.onResult( function(res:Either):void { trace( flag + "\t" + res ) ; } );
+			this.onResult( function(res:Either):void { trace( flag + "\t" + res ); } );
 			return this;
 		}
 		

@@ -3,7 +3,7 @@ package as3func.lang{
 	 * Creates a function from another function by prefilling some parameters
 	 * usage is:
 	 * function foo( a:int, b:int ):int {}
-	 * F.callback( foo, 12 ) ; // == function( b:int ):int { return foo( 12, b ) ; }
+	 * F.callback( foo, 12 ); // == function( b:int ):int { return foo( 12, b ); }
 	 * 
 	 * /!\ Warning
 	 * in some cases optional parameters would make it difficult to understand what
@@ -22,11 +22,11 @@ package as3func.lang{
 			// _first:* = undefined is used so that the function does not appear to take 0 parameter
 			return function callbackWithParams( _first : * = undefined, ...rest ):* {
 				if ( _first != undefined || rest.length > 0 || params.length < _f.length )
-					rest = [_first].concat(rest) ; // cannot use unshift because rest seems to be unmutable, WTF ?
-				return _f.apply( this, params.concat(rest) ) ;
-			} ;
+					rest = [_first].concat(rest); // cannot use unshift because rest seems to be unmutable, WTF ?
+				return _f.apply( this, params.concat(rest) );
+			};
 		else
-			return function callbackNoParams():* { return _f.apply( this, params ) ; } ;
+			return function callbackNoParams():* { return _f.apply( this, params ); };
 		
 	}
 }

@@ -8,13 +8,13 @@ package as3func.lang
 	 * 
 	 * ------ use case :
 	 * // initiating an asynchronous process
-	 * var f = new Future() ;
+	 * var f = new Future();
 	 * 
 	 * // referencing a callback
-	 * f.onSuccess( myFunction ) ;
+	 * f.onSuccess( myFunction );
 	 * 
 	 * // end of the process
-	 * f.dispatch( myResult ) ;
+	 * f.dispatch( myResult );
 	 * 
 	 * // the result will be cached so that if you reference another callback after the result is
 	 * // obtained the callback will be seamlessly called with the result
@@ -22,55 +22,55 @@ package as3func.lang
 	 * examples :
 	 * ----- animation
 	 * 
-	 * 		var animationDone:Future = new Future() ;
-	 * 		var myClip:MovieClip = new MyClip() ;
-	 * 		myClip.addEventListener( Event.ENTER_FRAME, function(e:Event):void { if(myClip.currentFrame == 10) f.complete() } ) ;
-	 * 		myClip.play() ;
-	 * 		animationDone.onSuccess( // do something, like relaunch another animation ) ;
+	 * 		var animationDone:Future = new Future();
+	 * 		var myClip:MovieClip = new MyClip();
+	 * 		myClip.addEventListener( Event.ENTER_FRAME, function(e:Event):void { if(myClip.currentFrame == 10) f.complete() } );
+	 * 		myClip.play();
+	 * 		animationDone.onSuccess( // do something, like relaunch another animation );
 	 * 
 	 * ----- server calls
 	 * 
 	 * 		function callServer():Future
 	 * 		{
-	 * 			var serverResponded:Future = new Future() ;
-	 * 			var myRequest:ServerRequest = new ServerRequest() ;
-	 * 			myRequest.addEventListener( ServerEvent.RESPONSE, function(e:ServerEvent) { serverResponded.complete( e.data ) ; } ) ;
-	 * 			return serverResponded ;
+	 * 			var serverResponded:Future = new Future();
+	 * 			var myRequest:ServerRequest = new ServerRequest();
+	 * 			myRequest.addEventListener( ServerEvent.RESPONSE, function(e:ServerEvent) { serverResponded.complete( e.data ); } );
+	 * 			return serverResponded;
 	 * 		}
 	 * 
 	 * usage
-	 * 		var myServerData:Future = callServer() ;
-	 * 		myServerData.onSuccess( treatServerData ) ;
+	 * 		var myServerData:Future = callServer();
+	 * 		myServerData.onSuccess( treatServerData );
 	 * 
 	 * handling Errors
 	 * future handles natively the error process, because so many things could go wrong once you go asynchronous
-	 * 		myServerData.onError( treatError ) ;
+	 * 		myServerData.onError( treatError );
 	 * 
 	 * handling custom error
-	 * 		myServerData.onResult( treatResponseOrError ) ;
+	 * 		myServerData.onResult( treatResponseOrError );
 	 * 
 	 * ----- filtering, combining, mapping
 	 * 
 	 * 		function createFoo( json:String ):String {
-	 * 			return new Foo( JSON.decode( json ) ) ;
+	 * 			return new Foo( JSON.decode( json ) );
 	 * 		} 
-	 * 		var myFoo:Future = callServer().map( createJibbidyBoo ) ;
+	 * 		var myFoo:Future = callServer().map( createJibbidyBoo );
 	 * 
 	 * this can be used to refine errors as well
 	 * 		
 	 * 		function handleJsonError( result:Either ):Either {
 	 * 			
 	 * 			if ( result.isLeft() )
-	 * 				return result ;
+	 * 				return result;
 	 * 			
-	 * 			var data = JSON.decode( result.getRight() ) ;
+	 * 			var data = JSON.decode( result.getRight() );
 	 * 			if ( data.error )
-	 * 				return Either.Left( data.error ) ; // convert valid result into an error result
+	 * 				return Either.Left( data.error ); // convert valid result into an error result
 	 * 			else
-	 * 				return Either.Right( data ) ; // return the decoded JSON
+	 * 				return Either.Right( data ); // return the decoded JSON
 	 * 			
 	 * 		}
-	 * 		var myRes = callServer.mapResult( handleJsonError ) ;
+	 * 		var myRes = callServer.mapResult( handleJsonError );
 	 * 
 	 */
 	public interface IFuture
