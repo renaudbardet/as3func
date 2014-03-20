@@ -38,14 +38,16 @@ package as3func.lang
 		protected function _pause():void
 		{
 			
-			_onPause.dispatch();
+			if( !_isComplete )
+				_onPause.dispatch();
 			
 		}
 		
 		protected function _resume():void
 		{
 			
-			_onResume.dispatch();
+			if( !_isComplete )
+				_onResume.dispatch();
 			
 		}
 		
