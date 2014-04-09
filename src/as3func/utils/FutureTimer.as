@@ -5,6 +5,9 @@ package as3func.utils
 	import flash.utils.setInterval;
 	
 	import as3func.lang.BaseFuture;
+	import as3func.lang.Context;
+	import as3func.lang.Either;
+	import as3func.lang.getCallerInfo;
 	
 	public class FutureTimer extends BaseFuture
 	{
@@ -25,6 +28,10 @@ package as3func.utils
 			super() ;
 			
 			this.time = time ;
+			
+			FUTURE::debug {
+				__debug_stack[0].pos = getCallerInfo();
+			}
 			
 		}
 		
@@ -88,7 +95,14 @@ package as3func.utils
 		public static function delay( time:Number ) : FutureTimer
 		{
 			var f:FutureTimer = new FutureTimer( time ) ;
+			
+			FUTURE::debug {
+				f.__debug_stack[0].fct = "delay(" + time + ")";
+				f.__debug_stack[0].pos = getCallerInfo();
+			}
+			
 			f.start() ;
+			
 			return f ;
 		}
 		

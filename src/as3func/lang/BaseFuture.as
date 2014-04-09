@@ -15,6 +15,10 @@ package as3func.lang
 	public class BaseFuture implements IFuture
 	{
 		
+		FUTURE::debug {
+			protected var __debug_stack:Array;
+		}
+		
 		protected var _isComplete : Boolean;
 		
 		protected var result : Either;
@@ -35,6 +39,10 @@ package as3func.lang
 			resultCallbacks = new Vector.<Function>();
 			
 			this.typeConstraint = typeConstraint;
+			
+			FUTURE::debug {
+				__debug_stack = [ { fct:"new", type:getQualifiedClassName(getClass(this)), pos:getCallerInfo() } ];
+			}
 			
 		}
 		
@@ -68,7 +76,35 @@ package as3func.lang
 			}
 			else
 			{
+				
+				FUTURE::debug {
+					
+					var pos:DebugPosition = getCallerInfo();
+					var f2:Function = f;
+					f = function debugSuccessCompleter(result):void {
+						
+						try{
+							if ( f2.length == 0 )
+								f2();
+							else
+								f2(result);
+						} catch ( e:* ) {
+							if( e is FutureError )
+								throw e;
+							else {
+								var stack:Array = __debug_stack.slice();
+								stack.push( { fct:"onSuccess", type:stack[stack.length-1].type, pos:pos } );
+								var e2:Error = new FutureError( e, stack );
+								throw e2;
+							}
+						}
+						
+					}
+					
+				}
+				
 				callbacks.push( f );
+				
 			}
 			
 			return this;
@@ -97,7 +133,35 @@ package as3func.lang
 			}
 			else
 			{
+				
+				FUTURE::debug {
+					
+					var pos:DebugPosition = getCallerInfo();
+					var f2:Function = f;
+					f = function debugErrorCompleter(result):void {
+						
+						try{
+							if ( f2.length == 0 )
+								f2();
+							else
+								f2(result);
+						} catch ( e:* ) {
+							if( e is FutureError )
+								throw e;
+							else {
+								var stack:Array = __debug_stack.slice();
+								stack.push( { fct:"onError", type:stack[stack.length-1].type, pos:pos } );
+								var e2:Error = new FutureError( e, stack );
+								throw e2;
+							}
+						}
+						
+					}
+					
+				}
+				
 				errorCallbacks.push( f );
+				
 			}
 			
 			return this;
@@ -123,7 +187,35 @@ package as3func.lang
 			}
 			else
 			{
+				
+				FUTURE::debug {
+					
+					var pos:DebugPosition = getCallerInfo();
+					var f2:Function = f;
+					f = function debugResultCompleter(result):void {
+						
+						try{
+							if ( f2.length == 0 )
+								f2();
+							else
+								f2(result);
+						} catch ( e:* ) {
+							if( e is FutureError )
+								throw e;
+							else {
+								var stack:Array = __debug_stack.slice();
+								stack.push( { fct:"onResult", type:stack[stack.length-1].type, pos:pos } );
+								var e2:Error = new FutureError( e, stack );
+								throw e2;
+							}
+						}
+						
+					}
+					
+				}
+				
 				resultCallbacks.push( f );
+				
 			}
 			
 			return this;
@@ -229,19 +321,28 @@ package as3func.lang
 		public function map( mapper:Function ):IFuture
 		{
 			
-			return mapResult(
-				function mapCompleter( res:Either ) : Either
+			var proxy:BaseFuture = new BaseFuture();
+			
+			function mapResultCompleter( res:Either ):void
+			{
+				if ( res.isRight() )
 				{
-					if ( res.isRight() )
-					{
-						if ( mapper.length > 0 )
-							return Either.Right( mapper( res.getRight() ) );
-						else
-							return Either.Right( mapper() );
-					}
-					else
-						return res;
-				} );
+					var mappedResult:* = ( mapper.length > 0 ) ? mapper( res.getRight() ) : mapper();
+					proxy._complete( mappedResult );
+				}
+				else
+					proxy._completeEither( res );
+			}
+			
+			this.onResult( mapResultCompleter );
+			
+			FUTURE::debug {
+				proxy.__debug_stack = __debug_stack.concat( proxy.__debug_stack );
+				proxy.__debug_stack[proxy.__debug_stack.length-1].fct = "map";
+				proxy.__debug_stack[proxy.__debug_stack.length-1].pos = getCallerInfo();
+			}
+			
+			return proxy;
 			
 		}
 		
@@ -251,23 +352,32 @@ package as3func.lang
 		public function mapTry( mapper:Function ):IFuture
 		{
 			
-			return mapResult(
-				function mapCompleter( res:Either ) : Either
+			var proxy:BaseFuture = new BaseFuture();
+			
+			function mapResultCompleter( res:Either ):void
+			{
+				if ( res.isRight() )
 				{
-					if ( res.isRight() )
-					{
-						try{
-							if ( mapper.length > 0 )
-								return Either.Right( mapper( res.getRight() ) );
-							else
-								return Either.Right( mapper() );
-						} catch(e:*) {
-							return Either.Left(e);
-						}
+					try{
+						var mappedResult:* = ( mapper.length > 0 ) ? mapper( res.getRight() ) : mapper();
+						proxy._complete( mappedResult );
+					} catch(e:*) {
+						proxy._fail( e );
 					}
-					else
-						return res;
-				} );
+				}
+				else
+					proxy._completeEither( res );
+			}
+			
+			this.onResult( mapResultCompleter );
+			
+			FUTURE::debug {
+				proxy.__debug_stack = __debug_stack.concat( proxy.__debug_stack );
+				proxy.__debug_stack[proxy.__debug_stack.length-1].fct = "mapTry";
+				proxy.__debug_stack[proxy.__debug_stack.length-1].pos = getCallerInfo();
+			}
+			
+			return proxy;
 			
 		}
 		
@@ -292,6 +402,13 @@ package as3func.lang
 					else
 						proxy._completeEither( mapper() );
 				} );
+			
+			FUTURE::debug {
+				proxy.__debug_stack = __debug_stack.concat( proxy.__debug_stack );
+				proxy.__debug_stack[proxy.__debug_stack.length-1].fct = "map";
+				proxy.__debug_stack[proxy.__debug_stack.length-1].pos = getCallerInfo();
+			}
+			
 			return proxy;
 			
 		}
@@ -310,19 +427,28 @@ package as3func.lang
 		{
 			
 			var proxy:BaseFuture = new BaseFuture();
-			this.onResult(
-				function refineCompleter( res:Either ):void
+			
+			function refineCompleter( res:Either ):void
+			{
+				if ( mapper.length > 0 )
 				{
-					if ( mapper.length > 0 )
-					{
-						if ( res.isRight() )
-							proxy._completeEither( mapper( res.getRight() ) );
-						else
-							proxy._completeEither( res );
-					}
+					if ( res.isRight() )
+						proxy._completeEither( mapper( res.getRight() ) );
 					else
-						proxy._completeEither( mapper() );
-				} );
+						proxy._completeEither( res );
+				}
+				else
+					proxy._completeEither( mapper() );
+			}
+			
+			this.onResult( refineCompleter );
+			
+			FUTURE::debug {
+				proxy.__debug_stack = __debug_stack.concat( proxy.__debug_stack );
+				proxy.__debug_stack[proxy.__debug_stack.length-1].fct = "refine";
+				proxy.__debug_stack[proxy.__debug_stack.length-1].pos = getCallerInfo();
+			}
+			
 			return proxy;
 			
 		}
@@ -356,6 +482,12 @@ package as3func.lang
 			f2.onSuccess( callback(joinCheck, 1) );
 			f2.onError( proxy._fail );
 			
+			FUTURE::debug {
+				proxy.__debug_stack = __debug_stack.concat( proxy.__debug_stack );
+				proxy.__debug_stack[proxy.__debug_stack.length-1].fct = "join";
+				proxy.__debug_stack[proxy.__debug_stack.length-1].pos = getCallerInfo();
+			}
+			
 			return proxy;
 			
 		}
@@ -388,6 +520,13 @@ package as3func.lang
 				else if ( result1 && result1.isLeft() )
 					proxy._fail( [result1.getLeft(), result2.getLeft()] );
 			} );
+			
+			FUTURE::debug {
+				proxy.__debug_stack = __debug_stack.concat( proxy.__debug_stack );
+				proxy.__debug_stack[proxy.__debug_stack.length-1].fct = "or";
+				proxy.__debug_stack[proxy.__debug_stack.length-1].pos = getCallerInfo();
+			}
+			
 			return proxy;
 			
 		}
@@ -418,6 +557,13 @@ package as3func.lang
 			var proxy:BaseFuture = new BaseFuture();
 			proxy._bind(this);
 			f2.onSuccess( proxy._fail );
+			
+			FUTURE::debug {
+				proxy.__debug_stack = __debug_stack.concat( proxy.__debug_stack );
+				proxy.__debug_stack[proxy.__debug_stack.length-1].fct = "unless";
+				proxy.__debug_stack[proxy.__debug_stack.length-1].pos = getCallerInfo();
+			}
+			
 			return proxy;
 			
 		}
@@ -446,9 +592,16 @@ package as3func.lang
 		public function copy() : IFuture
 		{
 			
-			var f:BaseFuture = new BaseFuture();
-			f._bind( this );
-			return f;
+			var proxy:BaseFuture = new BaseFuture();
+			proxy._bind( this );
+			
+			FUTURE::debug {
+				proxy.__debug_stack = __debug_stack.concat( proxy.__debug_stack );
+				proxy.__debug_stack[proxy.__debug_stack.length-1].fct = "copy";
+				proxy.__debug_stack[proxy.__debug_stack.length-1].pos = getCallerInfo();
+			}
+			
+			return proxy;
 			
 		}
 		
@@ -472,18 +625,30 @@ package as3func.lang
 		public function chain( func:Function ):IFuture
 		{
 			
-			return chainResult(
-					function chainCompleter( res:Either ):IFuture {
-						if ( res.isRight() )
-						{
-							if ( func.length > 0 )
-								return func( res.getRight() );
-							else
-								return func();
-						}
-						else
-							return Future.failed( res.getLeft() );
-					} );
+			var proxy:BaseFuture = new BaseFuture();
+			
+			function chainFunc( res:Either ):void
+			{
+				if ( res.isRight() )
+				{
+					if ( func.length > 0 )
+						func( res.getRight() ).onResult( proxy._completeEither );
+					else
+						func().onResult( proxy._completeEither );
+				}
+				else
+					proxy._completeEither( res );
+			}
+			
+			onResult( chainFunc );
+			
+			FUTURE::debug {
+				proxy.__debug_stack = __debug_stack.concat( proxy.__debug_stack );
+				proxy.__debug_stack[proxy.__debug_stack.length-1].fct = "chain";
+				proxy.__debug_stack[proxy.__debug_stack.length-1].pos = getCallerInfo();
+			}
+			
+			return proxy;
 			
 		}
 		
@@ -507,6 +672,12 @@ package as3func.lang
 			}
 			
 			onResult( chainFunc );
+			
+			FUTURE::debug {
+				proxy.__debug_stack = __debug_stack.concat( proxy.__debug_stack );
+				proxy.__debug_stack[proxy.__debug_stack.length-1].fct = "chainResult";
+				proxy.__debug_stack[proxy.__debug_stack.length-1].pos = getCallerInfo();
+			}
 			
 			return proxy;
 			

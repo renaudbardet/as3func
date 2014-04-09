@@ -33,6 +33,10 @@ package as3func.lang
 			_onPause = new Signal();
 			_onProgress = new Signal( Number );
 			
+			FUTURE::debug {
+				__debug_stack[0].pos = getCallerInfo();
+			}
+			
 		}
 		
 		protected function _pause():void

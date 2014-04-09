@@ -4,6 +4,7 @@ package as3func.animation
 	import as3func.lang.Context;
 	import as3func.lang.Either;
 	import as3func.lang.ISignal;
+	import as3func.lang.getCallerInfo;
 
 	public class Tween extends BaseProgressor
 	{
@@ -24,6 +25,10 @@ package as3func.animation
 			this.updateFct = updateFct;
 			this.time = 0;
 			ctx.registerCleaner(abort);
+			
+			FUTURE::debug {
+				__debug_stack[0].pos = getCallerInfo();
+			}
 		}
 		
 		public function play():void

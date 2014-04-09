@@ -4,6 +4,13 @@ package as3func.lang
 	{
 		public function Progressor()
 		{
+			
+			super();
+			
+			FUTURE::debug {
+				__debug_stack[0].pos = getCallerInfo();
+			}
+			
 		}
 		
 		/**

@@ -6,6 +6,16 @@ package as3func.lang
 	public class Future extends BaseFuture
 	{
 		
+		public function Future( typeConstraint:Class = null )
+		{
+			super( typeConstraint );
+			
+			FUTURE::debug {
+				__debug_stack[0].pos = getCallerInfo();
+			}
+			
+		}
+		
 		/**
 		 * trigger the completion of the Future and the call to every referenced callback
 		 * @param res	an optional data object

@@ -12,6 +12,7 @@ package as3func.net
 	import flash.utils.ByteArray;
 	
 	import as3func.lang.BaseFuture;
+	import as3func.lang.getCallerInfo;
 
 	public class LoaderFuture extends BaseFuture
 	{
@@ -29,6 +30,11 @@ package as3func.net
 			this.loader.addEventListener( ErrorEvent.ERROR, onError );
 			this.loader.addEventListener( IOErrorEvent.IO_ERROR, onError );
 			this.loader.addEventListener( SecurityErrorEvent.SECURITY_ERROR, onError );
+			
+			FUTURE::debug {
+				__debug_stack[0].pos = getCallerInfo();
+			}
+			
 		}
 		
 		public function load():void {

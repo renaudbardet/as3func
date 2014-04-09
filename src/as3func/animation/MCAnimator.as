@@ -6,6 +6,7 @@ package as3func.animation
 	import as3func.lang.BaseFuture;
 	import as3func.lang.Context;
 	import as3func.lang.callback;
+	import as3func.lang.getCallerInfo;
 
 	public class MCAnimator extends BaseFuture
 	{
@@ -34,6 +35,10 @@ package as3func.animation
 			
 			mc.__animator = this;
 			mc.gotoAndPlay(from);
+			
+			FUTURE::debug {
+				__debug_stack[0].pos = getCallerInfo();
+			}
 			
 		}
 		
