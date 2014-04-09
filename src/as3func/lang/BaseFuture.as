@@ -6,7 +6,7 @@ package as3func.lang
 	 * @author renaudbardet
 	 * 
 	 * BaseFuture implements all and only the methods exposed by IFuture
-	 * it is ment as a base for Future-based objects that will keep there
+	 * it is meant as a base for Future-based objects that will keep there
 	 * completion mechanisms internal
 	 * 
 	 * for a fully manipuable future see Future

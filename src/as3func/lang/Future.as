@@ -108,9 +108,17 @@ package as3func.lang
 		public static function fromFuture(f:IFuture):Future
 		{
 			
-			var tf:Future = new Future();
-			tf.bind( f );
-			return tf;
+			var proxy:Future = new Future();
+			
+			FUTURE::debug {
+				proxy.__debug_stack[0].fct = "fromFuture (wrapper)";
+				proxy.__debug_stack[0].pos = getCallerInfo();
+				if( f is BaseFuture )
+					proxy.__debug_stack = f["__debug_stack"].concat( proxy.__debug_stack );
+			}
+			
+			proxy.bind( f );
+			return proxy;
 			
 		}
 		
@@ -128,9 +136,12 @@ package as3func.lang
 		{
 			
 			var f:Future = new Future();
+			FUTURE::debug {
+				f.__debug_stack[0].fct = "nextEvent(" + type +")";
+				f.__debug_stack[0].pos = getCallerInfo();
+			}
 			
-			function onEvent(e:Event):void
-			{
+			function onEvent(e:Event):void {
 				f._complete( e );
 			}
 			
@@ -151,6 +162,12 @@ package as3func.lang
 		public static function nextSignal( s:Signal ) : Future
 		{
 			var f:Future = new Future();
+			
+			FUTURE::debug {
+				f.__debug_stack[0].fct = "nextSignal";
+				f.__debug_stack[0].pos = getCallerInfo();
+			}
+			
 			s.add( f._complete, true );
 			return f;
 		}
@@ -161,7 +178,15 @@ package as3func.lang
 		public static function completed( data : * = null ):Future
 		{
 			
-			return completedEither( Either.Right( data ) );
+			var f:Future = new Future();
+			
+			FUTURE::debug {
+				f.__debug_stack[0].fct = "completed(" + data + ")";
+				f.__debug_stack[0].pos = getCallerInfo();
+			}
+				
+			f._completeEither( Either.Right(data) );
+			return f;
 			
 		}
 		
@@ -171,7 +196,15 @@ package as3func.lang
 		public static function failed( error : * = null ):Future
 		{
 			
-			return completedEither( Either.Left( error ) );
+			var f:Future = new Future();
+			
+			FUTURE::debug {
+				f.__debug_stack[0].fct = "failed(" + error + ")";
+				f.__debug_stack[0].pos = getCallerInfo();
+			}
+				
+			f._completeEither( Either.Left(error) );
+			return f;
 			
 		}
 		
@@ -182,6 +215,12 @@ package as3func.lang
 		{
 			
 			var f:Future = new Future();
+			
+			FUTURE::debug {
+				f.__debug_stack[0].fct = "completedEither(" + res.toString() + ")";
+				f.__debug_stack[0].pos = getCallerInfo();
+			}
+			
 			f._completeEither( res );
 			return f;
 			

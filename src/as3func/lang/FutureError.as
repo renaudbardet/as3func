@@ -18,7 +18,7 @@ package as3func.lang
 				var numlinesInMessage:int = newlinesInMessage ? newlinesInMessage.length : 0;
 				for ( var i:int = numlinesInMessage + 1; i < stack.length; ++i ) {
 					var stackLine:String = stack[i];
-					if( stackLine.match( /BaseFuture.as/ ) )
+					if( stackLine.match( /src\/as3func\/lang\/BaseFuture.as:/ ) )
 						break;
 					else
 						message += '\n' + stackLine;
