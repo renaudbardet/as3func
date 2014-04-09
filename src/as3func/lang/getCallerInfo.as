@@ -5,7 +5,7 @@ package as3func.lang
 	public function getCallerInfo():DebugPosition
 	{
 		
-		var stackLine:String = new Error().getStackTrace().split( "\n" , 4 )[3];
+		var stackLine:String = new Error().getStackTrace().split( "\n", 4 )[3];
 		var functionName:String = stackLine.match( /\w+\(\)/ )[0];
 		var classMatchs:Array = stackLine.match( /(?<=\/)\w+?(?=.as:)/ );
 		var className:String = null;
