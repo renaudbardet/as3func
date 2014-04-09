@@ -1,5 +1,6 @@
 package as3func.lang
 {
+	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.utils.Dictionary;
 	
@@ -52,17 +53,22 @@ package as3func.lang
 			if (eventListeners[target][type]==undefined)
 				eventListeners[target][type] = new Array();
 			
+			var hook:Function = listener;
+			if( listener.length < 1 )
+				hook = function(e:Event):void { listener(); };
+			
 			// flash doesn't reference listeners with same parameters more than once
 			if (hasEventListener(target, type, listener, useCapture)) return;
 			
 			eventListeners[target][type].push({
 				'listener':listener,
+				'hook':hook,
 				'useCapture':useCapture,
 				'priority':priority
 			});
 			
 			if(!paused)
-				target.addEventListener(type, listener, useCapture, priority, false);
+				target.addEventListener(type, hook, useCapture, priority, false);
 			
 		}
 		
@@ -84,6 +90,7 @@ package as3func.lang
 					break;
 				}
 			}
+			var hook:Function = listeners[i].hook;
 			if(index<0) return false;
 			listeners.splice(index,1);
 			if(eventListeners[target][type].length==0)
@@ -94,7 +101,7 @@ package as3func.lang
 				if(nbListeners==0)
 					delete eventListeners[target];
 			}
-			target.removeEventListener(type,listener,useCapture);
+			target.removeEventListener(type,hook,useCapture);
 			return true;
 			
 		}
@@ -108,7 +115,7 @@ package as3func.lang
 			for (var type:String in eventListeners[target])
 			{
 				for each(var props:Object in eventListeners[target][type])
-				EventDispatcher(target).removeEventListener(type,props.listener,props.useCapture);
+				EventDispatcher(target).removeEventListener(type,props.hook,props.useCapture);
 				delete eventListeners[target][type];
 			}
 			delete eventListeners[target];
@@ -297,7 +304,7 @@ package as3func.lang
 			for (var target:* in eventListeners)
 				for (var type:String in eventListeners[target])
 					for each(var props:Object in eventListeners[target][type])
-						EventDispatcher(target).removeEventListener(type,props.listener,props.useCapture);
+						EventDispatcher(target).removeEventListener(type,props.hook,props.useCapture);
 			
 			for (var signal:* in signals)
 				for each (var slot:Object in signals[signal])
@@ -333,7 +340,7 @@ package as3func.lang
 			for (var target:* in eventListeners)
 				for (var type:String in eventListeners[target])
 					for each(var props:Object in eventListeners[target][type])
-						EventDispatcher(target).addEventListener(type,props.listener,props.useCapture,props.priority,false);
+						EventDispatcher(target).addEventListener(type,props.hook,props.useCapture,props.priority,false);
 			
 			for (var signal:* in signals)
 				for each (var slot:Object in signals[signal])
@@ -366,7 +373,7 @@ package as3func.lang
 				for (var type:String in eventListeners[target])
 				{
 					for each(var props:Object in eventListeners[target][type])
-					EventDispatcher(target).removeEventListener(type,props.listener,props.useCapture);
+					EventDispatcher(target).removeEventListener(type,props.hook,props.useCapture);
 					delete eventListeners[target][type];
 				}
 				delete eventListeners[target];
