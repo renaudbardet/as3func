@@ -155,20 +155,32 @@ package as3func.lang
 			return f;
 		}
 		
-		/** 
+		/**
+		 * pre-completed empty Future to use as dummy or synchronous to asynchronous utility
+		 * Note: this instance is shared to avoid garbage collection
+		 */
+		public static const completedNull:Future = completed( null );
+		
+		/**
 		 * return pre-completed Future to use as dummy or synchronous to asynchronous utility
 		 */
-		public static function completed( data : * = null ):Future
+		public static function completed( data : * ):Future
 		{
 			
 			return completedEither( Either.Right( data ) );
 			
 		}
 		
-		/** 
+		/**
+		 * pre-completed empty Future to use as dummy or synchronous to asynchronous utility
+		 * Note: this instance is shared to avoid garbage collection
+		 */
+		public static const failedNull:Future = completed( null );
+		
+		/**
 		 * return pre-completed Future to use as dummy or synchronous to asynchronous utility
 		 */
-		public static function failed( error : * = null ):Future
+		public static function failed( error : * ):Future
 		{
 			
 			return completedEither( Either.Left( error ) );
