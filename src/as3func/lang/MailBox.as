@@ -64,7 +64,7 @@ package as3func.lang
 		public function consume( consumer:Function ):IFuture
 		{
 			
-			var consumed:IFuture = Future.completed();
+			var consumed:IFuture = Future.completedNull;
 			for each ( var event:* in readAll() )
 			{
 				function scope(event:*):void {
