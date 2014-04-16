@@ -9,7 +9,7 @@ package as3func.lang
 	 * it is meant as a base for Future-based objects that will keep there
 	 * completion mechanisms internal
 	 * 
-	 * for a fully manipuable future see Future
+	 * for a fully manipulable future see Future
 	 * 
 	 */
 	public class BaseFuture implements IFuture
