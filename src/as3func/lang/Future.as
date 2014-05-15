@@ -238,5 +238,24 @@ package as3func.lang
 			
 		}
 		
+		public static function joinAll( futures:Vector.<IFuture>, unfold:Boolean = true ):IFuture
+		{
+			if( !futures || futures.length == 0 ) return completedNull;
+			var marker:Object = { __marks:"joinAll end" };
+			var join:IFuture = completed(marker);
+			for each( var f:IFuture in futures )
+				join = join.join( f );
+			if ( unfold )
+				join = join.map( function(nested:Array):Array {
+					while( nested && nested[0] != marker ) {
+						var head:Array = nested.shift();
+						nested = head.concat( nested );
+					}
+					nested.shift();
+					return nested;
+				});
+			return join;
+		}
+		
 	}
 }

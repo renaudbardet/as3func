@@ -218,9 +218,20 @@ package as3func.lang
 		 * This is the same as chain but the passed function should use the Either result rather than the data ( sim. to onResult comp. to onSuccess )
 		 * @param func	a function of type function( result:Either ):Future or function():Future
 		 * 				where result is result in this Future upon result completion
-		 * @return 		a Future that will be completed this Future then func's returned Future are completed
+		 * @return 		a Future that will be completed when this Future then func's returned Future are completed
 		 */
 		function chainResult( func:Function ):IFuture;
+		
+		/**
+		 * chainAndRetry creates a chain composed of the specified function repeated as long as its result is Fail
+		 * you can pass a loopCondition function wich is a chaining function that will be chained back to
+		 * every failed call of the primary function, you can use it to maintain a counter of trys to exit the loop
+		 * or trigger a user interaction to decide wether to continue or not
+		 * @param func	a function of type function( data:* ):Future or function():Future
+		 * 				where data is the data in this Future upon success completion
+		 * @return 		a Future that will be completed when func returns a Success or failed when loopCondition returns a Fail
+		 */
+		function chainAndRetry( func:Function, loopCondition:Function=null ):IFuture;
 		
 		function traceResult(flag:String):IFuture;
 		

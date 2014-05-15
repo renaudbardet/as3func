@@ -360,9 +360,10 @@ package as3func.lang
 				{
 					try{
 						var mappedResult:* = ( mapper.length > 0 ) ? mapper( res.getRight() ) : mapper();
-						proxy._complete( mappedResult );
 					} catch(e:*) {
 						proxy._fail( e );
+					} finally {
+						proxy._complete( mappedResult );
 					}
 				}
 				else
@@ -464,6 +465,43 @@ package as3func.lang
 		 * @return 		a Future that will be completed on
 		 * 
 		 */
+		public function joinResult( f2 : IFuture ) : IFuture
+		{
+			
+			var proxy:BaseFuture = new BaseFuture();
+			
+			var data:Array = [];
+			
+			function joinCheck( i:int, d:Either ):void {
+				data[i]= d;
+				if ( _isComplete && f2.isComplete )
+					proxy._complete( data );
+			}
+			
+			onResult( callback(joinCheck, 0) );
+			f2.onResult( callback(joinCheck, 1) );
+			
+			FUTURE::debug {
+				proxy.__debug_stack = __debug_stack.concat( proxy.__debug_stack );
+				proxy.__debug_stack[proxy.__debug_stack.length-1].fct = "joinResult";
+				proxy.__debug_stack[proxy.__debug_stack.length-1].pos = getCallerInfo();
+			}
+			
+			return proxy;
+			
+		}
+		
+		/** 
+		 * allows for joint asynchronous call patterns like
+		 * 
+		 * 	this			X - - - - -> A
+		 * 	f2				X - - - - - - -> B
+		 * 	f1.`(f2)		X - - - - - - -> (A,B)
+		 * 
+		 * @param f2	another Future completed or not
+		 * @return 		a Future that will be completed on
+		 * 
+		 */
 		public function join( f2 : IFuture ) : IFuture
 		{
 			
@@ -487,8 +525,8 @@ package as3func.lang
 				proxy.__debug_stack[proxy.__debug_stack.length-1].fct = "join";
 				proxy.__debug_stack[proxy.__debug_stack.length-1].pos = getCallerInfo();
 			}
-			
-			return proxy;
+				
+				return proxy;
 			
 		}
 		
@@ -678,6 +716,53 @@ package as3func.lang
 				proxy.__debug_stack[proxy.__debug_stack.length-1].fct = "chainResult";
 				proxy.__debug_stack[proxy.__debug_stack.length-1].pos = getCallerInfo();
 			}
+			
+			return proxy;
+			
+		}
+		
+		public function chainAndRetry( func:Function, loopCondition:Function=null ):IFuture
+		{
+			
+			var proxy:BaseFuture = new BaseFuture();
+			
+			var data:* = null;
+			
+			function retry():IFuture {
+				
+				var ret:IFuture;
+				if( func.length > 0 )
+					ret = func(data);
+				else
+					ret = func();
+				
+				return ret.chainResult(
+					function( res:Either ):IFuture {
+						if( res.isRight() ) {
+							proxy._completeEither( res );
+							return Future.completedNull;
+						}
+						else {
+							var cont:IFuture;
+							if( loopCondition )
+								cont = loopCondition( res.getLeft() );
+							else
+								cont = Future.completedNull;
+							return cont.onError( proxy._fail ).chain( retry );
+						}
+					});
+				
+			}
+			
+			function boot( d:* ):void {
+				
+				data = d;
+				retry();
+				
+			}
+			
+			onSuccess( boot );
+			onError( proxy._fail );
 			
 			return proxy;
 			
