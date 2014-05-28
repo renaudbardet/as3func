@@ -123,7 +123,7 @@ package as3func.lang
 		}
 		
 		/**
-		 * Create a Future from an Event Dispatcher
+		 * Create a Future from an EventDispatcher
 		 * the event listener function will be removed once the event is triggered
 		 *  
 		 * @param dispatcher	the event dispatcher

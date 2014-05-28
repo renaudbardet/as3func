@@ -18,9 +18,9 @@ package as3func.lang
 		private var pausers:Array;
 		private var resumers:Array;
 		private var pauseValue:int;
-		private function get paused():Boolean { return pauseValue > 0; }
-		private var closed:Boolean;
-		private var closedFuture:Future;
+		protected function get paused():Boolean { return pauseValue > 0; }
+		protected var closed:Boolean;
+		protected var closedFuture:Future;
 		private var storedCallbacks:Array; // stores a safeCallback call while the context is in pause
 		
 		public function Context(parent:Context=null)

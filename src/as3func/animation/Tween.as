@@ -4,7 +4,9 @@ package as3func.animation
 	import as3func.lang.Context;
 	import as3func.lang.Either;
 	import as3func.lang.ISignal;
-	import as3func.lang.getCallerInfo;
+	FUTURE::debug{
+		import as3func.lang.getCallerInfo;
+	}
 
 	public class Tween extends BaseProgressor
 	{
@@ -40,6 +42,7 @@ package as3func.animation
 			ctx.registerSignal(juggler, update);
 			if ( isPaused() )
 				_resume();
+			update(0);
 		}
 		
 		public function pause():void
@@ -88,6 +91,56 @@ package as3func.animation
 					if(ease!=null)
 						prog = ease(prog);
 					object[prop] = from + (to - from)*prog;
+				});
+			t.play();
+			return t;
+			
+		}
+		
+		/**
+		 * properties is an array of objects like:
+		 * {
+		 * 		object:Object,
+		 * 		prop:String,
+		 * 		from:Number,
+		 * 		to:Number,
+		 * 		duration:Number,
+		 * 		(optional) ease:Function,
+		 * 		(optional) delay:Number		delay before starting the tween
+		 * }	
+		 */
+		public static function tweenProperties(ctx:Context, properties:Array):Tween
+		{
+			
+			var maxDuration:Number = 0;
+			for each ( var property:Object in properties ) {
+				if( property.duration ) {
+					var propDuration:Number = property.duration + (property.delay ? property.delay : 0);
+					if( propDuration > maxDuration )
+						maxDuration = propDuration;
+				}
+			}
+			
+			var t:Tween = new Tween(
+				ctx,
+				maxDuration,
+				function(prog:Number):void{
+					
+					for each ( var property:Object in properties ) {
+						
+						var propDuration:Number = property.duration ? property.duration : maxDuration;
+						var delayProg:Number = property.delay ? (property.delay / maxDuration):0;
+						if( prog < delayProg ) continue;
+						var scaledProg:Number = (prog - delayProg) / (propDuration / maxDuration);
+						if( scaledProg > 1 ) continue;
+						
+						if( property.ease != null )
+							scaledProg = property.ease(scaledProg);
+						
+						property.object[property.prop] = property.from + (property.to - property.from)*scaledProg;
+						
+					}
+					
 				});
 			t.play();
 			return t;
