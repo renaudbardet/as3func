@@ -39,7 +39,7 @@ package as3func.lang
 				parent.pausers.push(this.pauseFromParent);
 				parent.resumers.push(this.resumeFromParent);
 				if(parent.paused) pauseFromParent();
-			} 
+			}
 		}
 		
 		public function registerEventListener(target:EventDispatcher, type:String, listener:Function, useCapture:Boolean=false, priority:int=0):void
@@ -231,6 +231,15 @@ package as3func.lang
 			
 		}
 		
+		public function unregisterPauser(pauser:Function):Boolean
+		{
+			if (closed) return false;
+			
+			if(pausers.indexOf(pauser)<0) return false;
+			pausers.splice(pausers.indexOf(pauser),1);
+			return true;
+		}
+		
 		public function registerResumer(resumer:Function):void
 		{
 			
@@ -238,6 +247,15 @@ package as3func.lang
 			
 			resumers.push(resumer);
 			
+		}
+		
+		public function unregisterResumer(resumer:Function):Boolean
+		{
+			if (closed) return false;
+			
+			if(resumers.indexOf(resumer)<0) return false;
+			resumers.splice(resumers.indexOf(resumer),1);
+			return true;
 		}
 		
 		public function safeCallback(func:Function):Function
