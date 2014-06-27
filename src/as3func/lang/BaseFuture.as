@@ -59,8 +59,11 @@ package as3func.lang
 		 * 				can be of type function(data):void or function():void
 		 * @return 		this instance (builder pattern)
 		 */
-		public function onSuccess( f:Function ):IFuture
+		public function onSuccess( f:Function, ...params ):IFuture
 		{
+			
+			if( params.length > 0 )
+				f = callback.apply( f, params ); 
 			
 			if ( _isComplete )
 			{
@@ -116,8 +119,11 @@ package as3func.lang
 		 * 				can be of type function(error):void or function():void
 		 * @return 		this instance (builder pattern)
 		 */
-		public function onError( f:Function ):IFuture
+		public function onError( f:Function, ...params ):IFuture
 		{
+			
+			if( params.length > 0 )
+				f = callback.apply( f, params ); 
 			
 			if ( _isComplete )
 			{
@@ -173,8 +179,11 @@ package as3func.lang
 		 * 				can be of type function(Either):void or function():void
 		 * @return 		this instance (builder pattern)
 		 */
-		public function onResult( f:Function ):IFuture
+		public function onResult( f:Function, ...params ):IFuture
 		{
+			
+			if( params.length > 0 )
+				f = callback.apply( f, params ); 
 			
 			if ( _isComplete )
 			{
@@ -318,8 +327,11 @@ package as3func.lang
 		 * @return 			a new Future that will be completed when this Future is completed but with the return of mapper(data) rather than data itself
 		 * 
 		 */
-		public function map( mapper:Function ):IFuture
+		public function map( mapper:Function, ...params ):IFuture
 		{
+			
+			if( params.length > 0 )
+				mapper = callback.apply( mapper, params ); 
 			
 			var proxy:BaseFuture = new BaseFuture();
 			
@@ -349,8 +361,11 @@ package as3func.lang
 		/**
 		 * idem map but surrounded with try catch and if an error occurs we fail with the Error as content
 		 */
-		public function mapTry( mapper:Function ):IFuture
+		public function mapTry( mapper:Function, ...params ):IFuture
 		{
+			
+			if( params.length > 0 )
+				mapper = callback.apply( mapper, params ); 
 			
 			var proxy:BaseFuture = new BaseFuture();
 			
@@ -391,8 +406,11 @@ package as3func.lang
 		 * @return 			a new Future that will be completed when this Future is completed but with the return of mapper(result)
 		 * 
 		 */
-		public function mapResult( mapper:Function ) : IFuture
+		public function mapResult( mapper:Function, ...params ):IFuture
 		{
+			
+			if( params.length > 0 )
+				mapper = callback.apply( mapper, params ); 
 			
 			var proxy:BaseFuture = new BaseFuture();
 			this.onResult(
@@ -424,8 +442,11 @@ package as3func.lang
 		 * @return 			a new Future that will be completed when this Future is completed but with the return of mapper(result)
 		 * 
 		 */
-		public function refine( mapper:Function ) : IFuture
+		public function refine( mapper:Function, ...params ):IFuture
 		{
+			
+			if( params.length > 0 )
+				mapper = callback.apply( mapper, params ); 
 			
 			var proxy:BaseFuture = new BaseFuture();
 			
@@ -660,8 +681,11 @@ package as3func.lang
 		 * @return 		a Future that will be completed once both this Future and the Future returned by func are completed
 		 * 
 		 */
-		public function chain( func:Function ):IFuture
+		public function chain( func:Function, ...params ):IFuture
 		{
+			
+			if( params.length > 0 )
+				func = callback.apply( null, [func].concat( params ) );
 			
 			var proxy:BaseFuture = new BaseFuture();
 			
@@ -696,8 +720,11 @@ package as3func.lang
 		 * 				where result is result in this Future upon result completion
 		 * @return 		a Future that will be completed this Future then func's returned Future are completed
 		 */
-		public function chainResult( func:Function ):IFuture
+		public function chainResult( func:Function, ...params ):IFuture
 		{
+			
+			if( params.length > 0 )
+				func = callback.apply( func, params ); 
 			
 			var proxy:BaseFuture = new BaseFuture();
 			
