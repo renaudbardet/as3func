@@ -119,6 +119,9 @@ package as3func.animation
 					if( propDuration > maxDuration )
 						maxDuration = propDuration;
 				}
+				if( !property.from && !(property is Function) ) {
+					property.from = property.object[property.prop];
+				}
 			}
 			
 			var t:Tween = new Tween(
@@ -127,6 +130,14 @@ package as3func.animation
 				function(prog:Number):void{
 					
 					for each ( var property:Object in properties ) {
+						
+						if( property is Function ) {
+							if( (property as Function).length == 1 )
+								property( prog );
+							else
+								property();
+							continue;
+						}
 						
 						var propDuration:Number = property.duration ? property.duration : maxDuration;
 						var delayProg:Number = property.delay ? (property.delay / maxDuration):0;
@@ -145,6 +156,13 @@ package as3func.animation
 			t.play();
 			return t;
 			
+		}
+		
+		public static function tween( ctx:Context, duration:Number, updateFunction:Function ):Tween
+		{
+			var t:Tween = new Tween( ctx, duration, updateFunction );
+			t.play();
+			return t;
 		}
 		
 		public static function makeElasticEase(rebounds:Number):Function
