@@ -5,15 +5,18 @@ package as3func.animation
 	
 	import as3func.lang.BaseFuture;
 	import as3func.lang.Context;
-	import as3func.lang.callback;
-	import as3func.lang.getCallerInfo;
+	import as3func.lang.Either;
+
+	FUTURE::debug {
+		import as3func.lang.getCallerInfo;
+	}
 
 	public class MCAnimator extends BaseFuture
 	{
 		
 		private var context:Context;
 		private var mc:MovieClip;
-		private var to:*;
+		private var to:int;
 		
 		public function MCAnimator( context:Context, mc:MovieClip, from:* = 0, to:*=null )
 		{
@@ -25,16 +28,21 @@ package as3func.animation
 			
 			this.context = context;
 			this.mc = mc;
-			this.to = to;
-			if(this.to == null) this.to = mc.totalFrames;
+			if(to == null) this.to = mc.totalFrames;
+			if(to is int) this.to = Math.min( to, mc.totalFrames );
+			if(to is String) {
+				mc.gotoAndStop( to );
+				this.to = mc.currentFrame;
+			}
 			
 			context.registerEventListener( mc, Event.ENTER_FRAME, onEnterFrame );
 			context.registerPauser( onPause );
 			context.registerResumer( onResume );
-			context.registerCleaner( callback( _fail, "context closed" ) );
+			context.registerCleaner( onClose );
 			
 			mc.__animator = this;
 			mc.gotoAndPlay(from);
+			if( from == to ) mc.stop();
 			
 			FUTURE::debug {
 				__debug_stack[0].pos = getCallerInfo();
@@ -44,9 +52,7 @@ package as3func.animation
 		
 		private function onEnterFrame(e:Event):void
 		{
-			if(this.to is int && this.to == mc.currentFrame)
-				_complete(null);
-			else if (this.to is String && this.to == mc.currentFrameLabel)
+			if (this.to == mc.currentFrame)
 				_complete(null);
 		}
 		
@@ -60,15 +66,23 @@ package as3func.animation
 			mc.play();
 		}
 		
-		override protected function _complete(d:*):void
+		private function onClose():void
+		{
+			_fail( "context closed" );
+		}
+		
+		override protected function _completeEither(res:Either):void
 		{
 			
 			context.unregisterEventListener( mc, Event.ENTER_FRAME, onEnterFrame );
+			context.unregisterPauser( onPause );
+			context.unregisterResumer( onResume );
+			context.unregisterCleaner( onClose );
 			
 			mc.stop();
 			delete mc.__animator;
 			
-			super._complete(d);
+			super._completeEither(res);
 			
 		}
 		
