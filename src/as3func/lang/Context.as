@@ -17,6 +17,7 @@ package as3func.lang
 		private var cleaners:Array; // store function():void
 		private var pausers:Array;
 		private var resumers:Array;
+		private var nextResume:Future;
 		private var pauseValue:int;
 		protected function get paused():Boolean { return pauseValue > 0; }
 		protected var closed:Boolean;
@@ -31,6 +32,7 @@ package as3func.lang
 			pausers = new Array();
 			resumers = new Array();
 			storedCallbacks = new Array();
+			nextResume = Future.completedNull;
 			
 			pauseValue = 0;
 			
@@ -292,7 +294,13 @@ package as3func.lang
 				registerCleaner( callback( closedFuture.complete, this ) );
 			}
 			
-			return f.unless(closedFuture);
+			return f.chainResult( waitOnPause ).unless(closedFuture);
+		}
+		
+		private function waitOnPause( res:Either ):IFuture {
+			
+			return nextResume.mapResult( identity( res ) );
+			
 		}
 		
 		public function pause():void
@@ -330,6 +338,8 @@ package as3func.lang
 			
 			for each (var pauser:Function in pausers)
 			 	pauser();
+			
+			nextResume = new Future();
 			
 		}
 		
@@ -370,6 +380,8 @@ package as3func.lang
 			
 			for each (var resumer:Function in resumers)
 				resumer();
+			
+			nextResume.complete();
 			
 		}
 		

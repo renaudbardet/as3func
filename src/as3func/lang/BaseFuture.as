@@ -63,7 +63,7 @@ package as3func.lang
 		{
 			
 			if( params.length > 0 )
-				f = callback.apply( f, params ); 
+				f = callback.apply( null, [f].concat(params) ); 
 			
 			if ( _isComplete )
 			{
@@ -123,7 +123,7 @@ package as3func.lang
 		{
 			
 			if( params.length > 0 )
-				f = callback.apply( f, params ); 
+				f = callback.apply( null, [f].concat(params) ); 
 			
 			if ( _isComplete )
 			{
@@ -183,7 +183,7 @@ package as3func.lang
 		{
 			
 			if( params.length > 0 )
-				f = callback.apply( f, params ); 
+				f = callback.apply( null, [f].concat(params) ); 
 			
 			if ( _isComplete )
 			{
@@ -331,7 +331,7 @@ package as3func.lang
 		{
 			
 			if( params.length > 0 )
-				mapper = callback.apply( mapper, params ); 
+				mapper = callback.apply( null, [mapper].concat(params) ); 
 			
 			var proxy:BaseFuture = new BaseFuture();
 			
@@ -365,7 +365,7 @@ package as3func.lang
 		{
 			
 			if( params.length > 0 )
-				mapper = callback.apply( mapper, params ); 
+				mapper = callback.apply( null, [mapper].concat(params) ); 
 			
 			var proxy:BaseFuture = new BaseFuture();
 			
@@ -410,7 +410,7 @@ package as3func.lang
 		{
 			
 			if( params.length > 0 )
-				mapper = callback.apply( mapper, params ); 
+				mapper = callback.apply( null, [mapper].concat(params) );  
 			
 			var proxy:BaseFuture = new BaseFuture();
 			this.onResult(
@@ -446,7 +446,7 @@ package as3func.lang
 		{
 			
 			if( params.length > 0 )
-				mapper = callback.apply( mapper, params ); 
+				mapper = callback.apply( null, [mapper].concat(params) );  
 			
 			var proxy:BaseFuture = new BaseFuture();
 			
@@ -724,7 +724,7 @@ package as3func.lang
 		{
 			
 			if( params.length > 0 )
-				func = callback.apply( func, params ); 
+				func = callback.apply( null, [func].concat(params) );  
 			
 			var proxy:BaseFuture = new BaseFuture();
 			
