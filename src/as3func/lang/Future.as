@@ -159,7 +159,7 @@ package as3func.lang
 		 * @param s		any instance of IOnceSignal
 		 * @return		a Future that will be completed next time the signal dispatches
 		 */		
-		public static function nextSignal( s:Signal ) : Future
+		public static function nextSignal( s:ISignal ) : Future
 		{
 			var f:Future = new Future();
 			

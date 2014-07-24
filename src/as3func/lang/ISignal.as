@@ -7,5 +7,6 @@ package as3func.lang
 		function remove( listener:Function ):Boolean;
 		function removeAll():void;
 		function hasListener( listener:Function ):Boolean;
+		function nextDispatch():IFuture;
 	}
 }

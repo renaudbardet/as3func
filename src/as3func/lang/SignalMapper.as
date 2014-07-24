@@ -36,6 +36,8 @@ package as3func.lang
 			return new SignalMapper( this, mapper );
 		}
 		
+		public function nextDispatch():IFuture { return Future.nextSignal( this ); }
+		
 		public function remove( listener:Function ):Boolean
 		{
 			
