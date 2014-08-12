@@ -16,7 +16,7 @@ package as3func.lang
 	{
 		
 		FUTURE::debug {
-			protected var __debug_stack:Array;
+			public var __debug_stack:Array;
 		}
 		
 		protected var _isComplete : Boolean;

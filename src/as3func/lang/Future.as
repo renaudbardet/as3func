@@ -114,7 +114,7 @@ package as3func.lang
 				proxy.__debug_stack[0].fct = "fromFuture (wrapper)";
 				proxy.__debug_stack[0].pos = getCallerInfo();
 				if( f is BaseFuture )
-					proxy.__debug_stack = f["__debug_stack"].concat( proxy.__debug_stack );
+					proxy.__debug_stack = (f as BaseFuture).__debug_stack.concat( proxy.__debug_stack );
 			}
 			
 			proxy.bind( f );
