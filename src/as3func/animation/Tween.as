@@ -76,7 +76,8 @@ package as3func.animation
 		
 		override protected function _completeEither(res:Either):void
 		{
-			pause();
+			if(ctx != null)
+				ctx.unregisterSignal(juggler, update);
 			ctx=null;
 			super._completeEither(res);
 		}	
