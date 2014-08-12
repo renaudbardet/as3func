@@ -37,6 +37,11 @@ package as3func.lang
 			return new SignalMapper(this, mapper);
 		}
 		
+		public function filter( mapper:Function ):ISignal
+		{
+			return new SignalMapper(this, mapper, true);
+		}
+		
 		public function hasListener(cb:Function):Boolean
 		{
 			return callbacks[cb] != undefined;

@@ -10,10 +10,13 @@ package as3func.lang
 		
 		private var listeners:Dictionary;
 		
-		public function SignalMapper( s:ISignal, f:Function )
+		private var _filter:Boolean;
+		
+		public function SignalMapper( s:ISignal, f:Function, filter:Boolean = false )
 		{
 			this._s = s;
 			this._f = f;
+			this._filter = filter;
 			listeners = new Dictionary();
 		}
 		
@@ -24,7 +27,15 @@ package as3func.lang
 			if( listeners[listener] != null )
 				innerListener = listeners[listener]; 
 			else{
-				innerListener = function( e:* ):void{ listener( _f(e) ); };
+				innerListener = function( e:* ):void{
+					if( _filter ) {
+						var mapped:Either = _f(e);
+						if( mapped.isRight() )
+							listener( mapped.getRight() );
+					}
+					else
+						listener( _f(e) );
+				};
 				listeners[listener] = innerListener;
 			}
 			_s.add( innerListener, once );
@@ -34,6 +45,11 @@ package as3func.lang
 		public function map( mapper:Function ):ISignal
 		{
 			return new SignalMapper( this, mapper );
+		}
+		
+		public function filter( mapper:Function ):ISignal
+		{
+			return new SignalMapper( this, mapper, true );
 		}
 		
 		public function nextDispatch():IFuture { return Future.nextSignal( this ); }
