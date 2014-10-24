@@ -26,20 +26,14 @@ package as3func.lang
 		
 		public function Context(parent:Context=null)
 		{
-			eventListeners = new Dictionary();
-			signals = new Dictionary();
-			cleaners = new Array();
-			pausers = new Array();
-			resumers = new Array();
-			storedCallbacks = new Array();
 			nextResume = Future.completedNull;
 			
 			pauseValue = 0;
 			
 			if (parent) {
 				parent.registerCleaner( close );
-				parent.pausers.push(this.pauseFromParent);
-				parent.resumers.push(this.resumeFromParent);
+				parent.registerPauser(this.pauseFromParent);
+				parent.registerResumer(this.resumeFromParent);
 				if(parent.paused) pauseFromParent();
 			}
 		}
@@ -48,6 +42,9 @@ package as3func.lang
 		{
 			
 			if(closed) return;
+			
+			if( !eventListeners )
+				eventListeners = new Dictionary();
 			
 			if(eventListeners[target]==undefined)
 				eventListeners[target] = new Object();
@@ -79,6 +76,7 @@ package as3func.lang
 			
 			if (closed) return false;
 			
+			if(!eventListeners) return false;
 			if(eventListeners[target]==undefined) return false;
 			if(eventListeners[target][type]==undefined) return false;
 			var listeners:Array = eventListeners[target][type];
@@ -113,6 +111,7 @@ package as3func.lang
 			
 			if(closed) return false;
 			
+			if(!eventListeners) return false;
 			if(eventListeners[target]==undefined) return false;
 			for (var type:String in eventListeners[target])
 			{
@@ -130,6 +129,7 @@ package as3func.lang
 			
 			if(closed) return false;
 			
+			if(!eventListeners) return false;
 			if(eventListeners[target]==undefined) return false;
 			if(eventListeners[target][type]==undefined) return false;
 			var listeners:Array = eventListeners[target][type];
@@ -147,6 +147,9 @@ package as3func.lang
 		{
 			
 			if(closed) return;
+			
+			if(!signals)
+				signals = new Dictionary();
 			
 			if(signals[signal]==undefined)
 				signals[signal]=new Array();
@@ -172,6 +175,7 @@ package as3func.lang
 			
 			if(closed) return false;
 			
+			if(!signals) return false;
 			if(signals[signal]==undefined) return false;
 			var index:int = -1;
 			for (var i:int=0;i<signals[signal].length;++i)
@@ -196,6 +200,7 @@ package as3func.lang
 			
 			if(closed) return false;
 			
+			if(!signals) return false;
 			if(signals[signal]==undefined) return false;
 			for each (var slot:Object in signals[signal])
 				if (slot.listener == listener)
@@ -207,9 +212,13 @@ package as3func.lang
 		public function registerCleaner(cleaner:Function):void
 		{
 			
-			if(closed) return;
+			if(closed) {
+				cleaner();
+				return;
+			}
 			
-			cleaners.push(cleaner);
+			if( !cleaners ) cleaners = [cleaner];
+			else cleaners.push(cleaner);
 			
 		}
 		
@@ -218,6 +227,7 @@ package as3func.lang
 			
 			if (closed) return false;
 			
+			if( !cleaners ) return false;
 			if(cleaners.indexOf(cleaner)<0) return false;
 			cleaners.splice(cleaners.indexOf(cleaner),1);
 			return true;
@@ -229,7 +239,8 @@ package as3func.lang
 			
 			if(closed) return;
 			
-			pausers.push(pauser);
+			if( !pausers ) pausers = [pauser];
+			else pausers.push(pauser);
 			
 		}
 		
@@ -237,6 +248,7 @@ package as3func.lang
 		{
 			if (closed) return false;
 			
+			if(!pausers) return false;
 			if(pausers.indexOf(pauser)<0) return false;
 			pausers.splice(pausers.indexOf(pauser),1);
 			return true;
@@ -247,7 +259,8 @@ package as3func.lang
 			
 			if(closed) return;
 			
-			resumers.push(resumer);
+			if( !resumers ) resumers = [resumer];
+			else resumers.push(resumer);
 			
 		}
 		
@@ -255,6 +268,7 @@ package as3func.lang
 		{
 			if (closed) return false;
 			
+			if(!resumers) return false;
 			if(resumers.indexOf(resumer)<0) return false;
 			resumers.splice(resumers.indexOf(resumer),1);
 			return true;
@@ -269,6 +283,7 @@ package as3func.lang
 						rest = [first].concat(rest);
 					if(paused)
 					{
+						if(!storedCallbacks) storedCallbacks = [];
 						storedCallbacks.push( {func:func,data:rest} );
 						return;
 					}
@@ -279,6 +294,7 @@ package as3func.lang
 					if(closed) return null;
 					if(paused)
 					{
+						if(!storedCallbacks) storedCallbacks = [];
 						storedCallbacks.push( {func:func,data:[]} );
 						return;
 					}
@@ -327,17 +343,23 @@ package as3func.lang
 		private function _pause():void
 		{
 			
-			for (var target:* in eventListeners)
-				for (var type:String in eventListeners[target])
-					for each(var props:Object in eventListeners[target][type])
-						EventDispatcher(target).removeEventListener(type,props.hook,props.useCapture);
+			if( eventListeners ) {
+				for (var target:* in eventListeners)
+					for (var type:String in eventListeners[target])
+						for each(var props:Object in eventListeners[target][type])
+							EventDispatcher(target).removeEventListener(type,props.hook,props.useCapture);
+			}
 			
-			for (var signal:* in signals)
-				for each (var slot:Object in signals[signal])
-					signal.remove(slot.once?slot.oncelistener:slot.listener);
+			if( signals ) {
+				for (var signal:* in signals)
+					for each (var slot:Object in signals[signal])
+						signal.remove(slot.once?slot.oncelistener:slot.listener);
+			}
 			
-			for each (var pauser:Function in pausers)
-			 	pauser();
+			if( pausers ) {
+				for each (var pauser:Function in pausers)
+				 	pauser();
+			}
 			
 			nextResume = new Future();
 			
@@ -365,21 +387,29 @@ package as3func.lang
 		private function _resume():void
 		{
 			
-			for (var target:* in eventListeners)
-				for (var type:String in eventListeners[target])
-					for each(var props:Object in eventListeners[target][type])
-						EventDispatcher(target).addEventListener(type,props.hook,props.useCapture,props.priority,false);
+			if( eventListeners ) {
+				for (var target:* in eventListeners)
+					for (var type:String in eventListeners[target])
+						for each(var props:Object in eventListeners[target][type])
+							EventDispatcher(target).addEventListener(type,props.hook,props.useCapture,props.priority,false);
+			}
 			
-			for (var signal:* in signals)
-				for each (var slot:Object in signals[signal])
-					signal.add(slot.once?slot.onceListener:slot.listener, slot.once);
+			if( signals ) {
+				for (var signal:* in signals)
+					for each (var slot:Object in signals[signal])
+						signal.add(slot.once?slot.onceListener:slot.listener, slot.once);
+			}
 			
-			for (var funcCall:Object in storedCallbacks)
-				funcCall.func.apply(null, funcCall.data);
-			storedCallbacks = [];
+			if( storedCallbacks ) {
+				for (var funcCall:Object in storedCallbacks)
+					funcCall.func.apply(null, funcCall.data);
+				storedCallbacks = [];
+			}
 			
-			for each (var resumer:Function in resumers)
-				resumer();
+			if( resumers ) {
+				for each (var resumer:Function in resumers)
+					resumer();
+			}
 			
 			nextResume.complete();
 			
@@ -398,29 +428,35 @@ package as3func.lang
 			}
 			parent = null;
 			
-			for (var target:* in eventListeners)
-			{
-				for (var type:String in eventListeners[target])
+			if( eventListeners ) {
+				for (var target:* in eventListeners)
 				{
-					for each(var props:Object in eventListeners[target][type])
-					EventDispatcher(target).removeEventListener(type,props.hook,props.useCapture);
-					delete eventListeners[target][type];
+					for (var type:String in eventListeners[target])
+					{
+						for each(var props:Object in eventListeners[target][type])
+						EventDispatcher(target).removeEventListener(type,props.hook,props.useCapture);
+						delete eventListeners[target][type];
+					}
+					delete eventListeners[target];
 				}
-				delete eventListeners[target];
+				eventListeners = null;
 			}
-			eventListeners = null;
 			
-			for (var signal:ISignal in signals) {
-				for each (var slot:Object in signals[signal])
-					signal.remove(slot.once?slot.onceListener:slot.listener);
-				delete signals[signal];
+			if( signals ) {
+				for (var signal:ISignal in signals) {
+					for each (var slot:Object in signals[signal])
+						signal.remove(slot.once?slot.onceListener:slot.listener);
+					delete signals[signal];
+				}
+				signals = null;
 			}
-			signals = null;
 			
-			for each (var cleaner:Function in cleaners)
-				cleaner();
+			if( cleaners ) {
+				for each (var cleaner:Function in cleaners)
+					cleaner();
+				cleaners = null;
+			}
 			
-			cleaners = null;
 			pausers = null;
 			resumers = null;
 			

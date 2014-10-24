@@ -71,14 +71,23 @@ package as3func.lang
 			
 			for (var cb:Function in callbacks)
 			{
+				// delete before call to be able to reinstate listener in call
+				if(callbacks[cb])
+					delete callbacks[cb];
+				
 				if(cb.length > 0)
 					cb(data);
 				else
 					cb();
-				if(callbacks[cb])
-					delete callbacks[cb];
 			}
 			
+		}
+		
+		public function or( s2:ISignal ):ISignal {
+			var jointS:Signal = new Signal();
+			this.add( jointS.dispatch );
+			s2.add( jointS.dispatch );
+			return jointS;
 		}
 		
 	}

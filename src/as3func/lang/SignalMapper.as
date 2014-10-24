@@ -27,15 +27,20 @@ package as3func.lang
 			if( listeners[listener] != null )
 				innerListener = listeners[listener]; 
 			else{
-				innerListener = function( e:* ):void{
-					if( _filter ) {
+				if( _filter ) {
+					innerListener = function( e:* ):void{
 						var mapped:Either = _f(e);
 						if( mapped.isRight() )
 							listener( mapped.getRight() );
-					}
-					else
+						else if (once) // restore the listener for next dispatch
+							_s.add( listeners[listener], true )
+					};
+				}
+				else {
+					innerListener = function( e:* ):void {
 						listener( _f(e) );
-				};
+					};
+				}
 				listeners[listener] = innerListener;
 			}
 			_s.add( innerListener, once );
@@ -86,6 +91,13 @@ package as3func.lang
 				} while( haslistener )
 				delete listeners[l];
 			}
+		}
+		
+		public function or( s2:ISignal ):ISignal {
+			var jointS:Signal = new Signal();
+			this.add( jointS.dispatch );
+			s2.add( jointS.dispatch );
+			return jointS;
 		}
 		
 	}

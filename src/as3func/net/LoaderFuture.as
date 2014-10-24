@@ -12,7 +12,9 @@ package as3func.net
 	import flash.utils.ByteArray;
 	
 	import as3func.lang.BaseFuture;
+	FUTURE::debug {
 	import as3func.lang.getCallerInfo;
+	}
 
 	public class LoaderFuture extends BaseFuture
 	{

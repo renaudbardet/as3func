@@ -6,24 +6,66 @@ package as3func.lang
 	{
 		
 		private var config:Dictionary;
+		private var rExp:Dictionary;
 		
-		public function Factory( config:Dictionary )
+		public function Factory( config:Dictionary, eRegs:Dictionary = null )
 		{
 			
 			this.config = config;
+			this.rExp = (eRegs != null) ? eRegs : new Dictionary();
 			
 		}
 		
-		public function create( cl:Class, ...params ):Object
+		public function loadConfig( additionalConfig:Object ):void {
+			
+			for ( var k:* in additionalConfig ) {
+				this.config[k] = additionalConfig[k];
+			}
+			
+		}
+		
+		/**
+		 * add a regular expression matcher
+		 * a regular expression matcher will be tested upon when calling create() with a String id
+		 * if an exact match exists for the given id regular expression matchers will not be tested
+		 * if multiple regular expressions match the same id, the result is undetermined
+		 * 
+		 * if the provided value is a Function, it should expect the matched id as first parameter
+		 * 
+		 * @param r		a regular expression that should catch the required id to create
+		 * @param value	a Class to instanciate OR a singleton of any type OR a builder Function
+		 * 				in the case of a Function, it should expect the matched id as its first parameter
+		 */		
+		public function addRExp( r:RegExp, value:* ):void {
+			
+			rExp[r] = value;
+			
+		}
+		
+		public function create( id:*, ...params ):Object
 		{
 			
-			var builder:* = config[cl]; 
+			var builder:* = config[id]; 
 			
-			if(builder == null) return __ugliest_factory_funciton_ever__(cl, params);
+			// if we have a string id, try to match on eRegs
+			if(builder == undefined && id is String) {
+				for ( var r:RegExp in rExp ) {
+					if( r.test( id ) ) {
+						builder = rExp[r];
+						if( builder is Function ) builder = callback( builder, id );
+						break;
+					}
+				}
+			}
+			
 			if(builder is Class) return __ugliest_factory_funciton_ever__(builder, params);
 			if(builder is Function) return builder.apply(null, params);
-			if(builder is Object) return builder;
-			return null;
+			
+			// if no match but we can instanciate the requested id
+			if(builder == undefined && id is Class) return __ugliest_factory_funciton_ever__(id, params);
+			
+			// builder is a singleton or is undefined, return it
+			return builder;
 			
 		}
 		

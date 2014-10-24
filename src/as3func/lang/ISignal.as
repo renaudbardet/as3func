@@ -9,5 +9,6 @@ package as3func.lang
 		function removeAll():void;
 		function hasListener( listener:Function ):Boolean;
 		function nextDispatch():IFuture;
+		function or(s2:ISignal):ISignal;
 	}
 }
