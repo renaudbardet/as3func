@@ -318,7 +318,7 @@ package as3func.lang
 			return nextResume.mapResult( identity( res ) );
 			
 		}
-		
+
 		public function pause():void
 		{
 			
@@ -479,6 +479,6 @@ package as3func.lang
 				listener.apply(null,data);
 			}
 		}
-		
+
 	}
 }

@@ -10,14 +10,17 @@ package as3func.animation
 
 	public class Tween extends BaseProgressor
 	{
-		
+
+		public static const LOOP:String = "Tween.looptype.LOOP";
+		public static const ROUND:String = "Tween.looptype.ROUND";
+
 		public static var juggler:ISignal;
-		
+
 		private var updateFct:Function;
 		private var time:Number;
 		private var duration:Number;
 		private var ctx:Context;
-		
+
 		public function Tween(ctx:Context, duration:Number, updateFct:Function)
 		{
 			super();
@@ -114,14 +117,14 @@ package as3func.animation
 		{
 			
 			var maxDuration:Number = 0;
-			for each ( var property:Object in properties ) {
-				if( property.duration ) {
-					var propDuration:Number = property.duration + (property.delay ? property.delay : 0);
+			for each ( var p:Object in properties ) {
+				if( p.duration ) {
+					var propDuration:Number = p.duration + (p.delay ? p.delay : 0);
 					if( propDuration > maxDuration )
 						maxDuration = propDuration;
 				}
-				if( !property.from && !(property is Function) ) {
-					property.from = property.object[property.prop];
+				if( !(p is Function) && p.from == undefined ) {
+					p.from = p.object[p.prop];
 				}
 			}
 			
@@ -130,26 +133,26 @@ package as3func.animation
 				maxDuration,
 				function(prog:Number):void{
 					
-					for each ( var property:Object in properties ) {
+					for each ( var p:Object in properties ) {
 						
-						if( property is Function ) {
-							if( (property as Function).length == 1 )
-								property( prog );
+						if( p is Function ) {
+							if( (p as Function).length == 1 )
+								p( prog );
 							else
-								property();
+								p();
 							continue;
 						}
 						
-						var propDuration:Number = property.duration ? property.duration : maxDuration;
-						var delayProg:Number = property.delay ? (property.delay / maxDuration):0;
+						var propDuration:Number = p.duration ? p.duration : maxDuration;
+						var delayProg:Number = p.delay ? (p.delay / maxDuration):0;
 						if( prog < delayProg ) continue;
 						var scaledProg:Number = (prog - delayProg) / (propDuration / maxDuration);
 						if( scaledProg > 1 ) continue;
 						
-						if( property.ease != null )
-							scaledProg = property.ease(scaledProg);
+						if( p.ease != null )
+							scaledProg = p.ease(scaledProg);
 						
-						property.object[property.prop] = property.from + (property.to - property.from)*scaledProg;
+						p.object[p.prop] = p.from + (p.to - p.from)*scaledProg;
 						
 					}
 					
@@ -165,6 +168,91 @@ package as3func.animation
 			t.play();
 			return t;
 		}
+
+		public static function loopProperty( ctx:Context, obj:Object, prop:String, from:Number, to:Number, duration:Number, loopType:String = LOOP, ease:Function = null):void {
+
+			loop(	ctx,
+					duration,
+					function(prog:Number):void {
+
+						prog = ease != null ? ease( prog ) : prog;
+						obj[prop] = from + (to - from)*prog;
+
+					},
+					loopType
+			);
+
+		}
+
+		public static function loopProperties( ctx:Context, properties:Array ):void {
+
+			var maxDuration:Number = 0;
+			for each ( var p:Object in properties ) {
+				if( p.duration ) {
+					var propDuration:Number = p.duration + (p.delay ? p.delay : 0);
+					if( propDuration > maxDuration )
+						maxDuration = propDuration;
+				}
+			}
+
+			for each ( p in properties ) {
+
+				if( p is Function ) {
+					loop( ctx, maxDuration, p as Function, LOOP );
+				}
+				else {
+					loopProperty(
+							ctx,
+							p.object,
+							p.prop,
+							p.from != undefined ? p.from : p.object[p.prop],
+							p.to,
+							p.duration,
+							p.loopType,
+							p.ease
+					);
+				}
+
+			}
+
+		}
+
+		public static function loop( ctx:Context, duration:Number, updateFunction:Function, loopType:String = LOOP ):void {
+
+			var forward:Boolean = true;
+			var prog:Number = 0;
+			ctx.registerSignal( juggler, function(dt:Number):void {
+
+				if( forward ) {
+
+					prog += dt/duration;
+					if( prog >= 1 ){
+						if( loopType == LOOP )
+							prog -= 1;
+						if( loopType == ROUND ){
+							prog = 1;
+							forward = false;
+						}
+					}
+
+				} else {
+
+					prog -= dt/duration;
+					if( prog <= 0 ) {
+						if( loopType == LOOP ) prog += 1; // this should not be possible as of now
+						if( loopType == ROUND ){
+							prog = 0;
+							forward = true;
+						}
+					}
+
+				}
+
+				updateFunction( prog );
+
+			});
+
+		}
 		
 		public static function makeElasticEase(rebounds:Number):Function
 		{
@@ -172,6 +260,6 @@ package as3func.animation
 				return Math.cos(prog*((2*rebounds+1)*Math.PI))*(Math.sqrt(prog)-1)+1; 
 			};
 		}
-		
+
 	}
 }
