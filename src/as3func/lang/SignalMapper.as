@@ -11,7 +11,14 @@ package as3func.lang
 		private var listeners:Dictionary;
 		
 		private var _filter:Boolean;
-		
+
+		/**
+		 *
+		 * @param s
+		 * @param f
+		 * @param filter	if true, f is supposed to return a Either, the signal will dispatch the content
+		 * 					in a Either.Right and will not dispatch otherwise
+		 */
 		public function SignalMapper( s:ISignal, f:Function, filter:Boolean = false )
 		{
 			this._s = s;

@@ -36,7 +36,14 @@ package as3func.lang
 		{
 			return new SignalMapper(this, mapper);
 		}
-		
+
+		/**
+		 * similar to map, but mapper is a X -> Either(Y) function
+		 * if the return of mapper is a Right, the filtered signal will dispatch the content of the Either,
+		 * if it's a Left the filtered Signal will not dispatch
+		 * @param mapper
+		 * @return
+		 */
 		public function filter( mapper:Function ):ISignal
 		{
 			return new SignalMapper(this, mapper, true);
