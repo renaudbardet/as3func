@@ -142,7 +142,7 @@ public class Factory
 		// if no match but we can instanciate the requested id
 		if(builder == undefined && id is Class) return __ugliest_factory_funciton_ever__(id, params);
 
-		// builder is a singleton or is undefined, return it
+		// builder is a singleton or is not buildable, return it
 		return builder;
 
 	}
