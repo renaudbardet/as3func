@@ -169,12 +169,13 @@ package as3func.animation
 			return t;
 		}
 
-		public static function loopProperty( ctx:Context, obj:Object, prop:String, from:Number, to:Number, duration:Number, loopType:String = LOOP, ease:Function = null):void {
+		public static function loopProperty( ctx:Context, obj:Object, prop:String, from:Number, to:Number, duration:Number, delay:Number = 0, loopType:String = LOOP, ease:Function = null):void {
 
 			loop(	ctx,
-					duration,
+					duration + delay,
 					function(prog:Number):void {
 
+						prog = Number.min( 1, prog*(duration+delay)/duration )
 						prog = ease != null ? ease( prog ) : prog;
 						obj[prop] = from + (to - from)*prog;
 
@@ -208,6 +209,7 @@ package as3func.animation
 							p.from != undefined ? p.from : p.object[p.prop],
 							p.to,
 							p.duration,
+							p.delay,
 							p.loopType,
 							p.ease
 					);
